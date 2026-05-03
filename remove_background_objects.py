@@ -87,14 +87,13 @@ def connected_components(binary_mask: np.ndarray) -> np.ndarray:
     current_label = 0
 
     def neighbors(y: int, x: int):
-        if y > 0:
-            yield y - 1, x
-        if y < h - 1:
-            yield y + 1, x
-        if x > 0:
-            yield y, x - 1
-        if x < w - 1:
-            yield y, x + 1
+        for dy in (-1, 0, 1):
+            for dx in (-1, 0, 1):
+                if dy == 0 and dx == 0:
+                    continue
+                ny, nx = y + dy, x + dx
+                if 0 <= ny < h and 0 <= nx < w:
+                    yield ny, nx
 
     for y in range(h):
         for x in range(w):
@@ -110,6 +109,17 @@ def connected_components(binary_mask: np.ndarray) -> np.ndarray:
                             stack.append((ny, nx))
 
     return labels
+
+
+def quantize_alpha(image: Image.Image) -> Image.Image:
+    array = np.array(image)
+    if array.ndim != 3 or array.shape[2] != 4:
+        raise ValueError("La imagen debe tener un canal alfa para cuantizar el canal alfa.")
+
+    alpha = array[..., 3]
+    quantized_alpha = np.where(alpha < 64, 0, np.where(alpha < 192, 128, 255)).astype("uint8")
+    array[..., 3] = quantized_alpha
+    return Image.fromarray(array, mode="RGBA")
 
 
 def clean_alpha_components(image: Image.Image, min_area: int = 10) -> Image.Image:
@@ -246,6 +256,7 @@ def main() -> int:
 
     image = load_image(input_path)
     result = remove_background(image)
+    result = quantize_alpha(result)
     result = clean_alpha_components(result, min_area=max(10, args.min_area // 10))
 
     if args.save_full:

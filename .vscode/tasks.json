@@ -1,0 +1,25 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Run remove_background_objects",
+      "type": "shell",
+      "command": "python",
+      "args": [
+        "remove_background_objects.py",
+        "C:\\Users\\carlosmx\\Downloads\\ea79c697-26d7-432a-8016-7bfd637d8962.png",
+        "--output-dir",
+        "resultados",
+        "--save-full",
+        "--min-width",
+        "40",
+        "--min-height",
+        "40"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": []
+    }
+  ]
+}
